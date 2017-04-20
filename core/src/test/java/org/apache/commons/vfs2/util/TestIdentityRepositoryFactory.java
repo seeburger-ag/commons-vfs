@@ -14,9 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jcraft.jsch;
+package org.apache.commons.vfs2.util;
+
+import java.util.Vector;
 
 import org.apache.commons.vfs2.provider.sftp.IdentityRepositoryFactory;
+
+import com.jcraft.jsch.IdentityRepository;
+import com.jcraft.jsch.JSch;
 
 /**
  * Simple JSch identity repository factory (that just returns the default factory).
@@ -31,6 +36,33 @@ public class TestIdentityRepositoryFactory implements IdentityRepositoryFactory
     @Override
     public IdentityRepository create(final JSch jsch)
     {
-        return new LocalIdentityRepository(jsch);
+        return new IdentityRepository() {
+            private Vector identities = new Vector();
+            @Override
+            public String getName() {
+                return "Test Identity Repository";
+            }
+            @Override
+            public int getStatus() {
+                return IdentityRepository.RUNNING;
+            }
+            @Override
+            public Vector getIdentities() {
+                return identities;
+            }
+            @Override
+            public boolean add(byte[] identity) {
+                return true;
+            }
+            @Override
+            public boolean remove(byte[] blob) {
+                return true;
+            }
+            @Override
+            public void removeAll() {
+                identities.clear();
+            }
+        };
     }
 }
+

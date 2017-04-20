@@ -139,6 +139,16 @@ public class NHttpServer
             }
 
             final String target = request.getRequestLine().getUri();
+            if (target.contains("method-not-allowed"))
+            {
+                response.setStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
+                final NStringEntity entity = new NStringEntity("<html><body><h1>Method not allowed</h1></body></html>",
+                                                               ContentType.create("text/html", "UTF-8"));
+                response.setEntity(entity);
+                NHttpServer.debug("Test for method-not-allowed, returning 405");
+                return;
+            }
+
             final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
             if (!file.exists())
             {

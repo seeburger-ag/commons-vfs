@@ -52,6 +52,7 @@ import org.apache.commons.vfs2.test.ProviderReadTests;
 import org.apache.commons.vfs2.test.ProviderTestConfig;
 import org.apache.commons.vfs2.test.ProviderTestSuite;
 import org.apache.commons.vfs2.util.FreeSocketPortUtil;
+import org.apache.commons.vfs2.util.TestIdentityRepositoryFactory;
 import org.apache.ftpserver.ftplet.FtpException;
 import org.apache.sshd.SshServer;
 import org.apache.sshd.common.NamedFactory;
@@ -78,7 +79,6 @@ import org.apache.sshd.server.session.ServerSession;
 import org.apache.sshd.server.sftp.SftpSubsystem;
 
 import com.jcraft.jsch.SftpATTRS;
-import com.jcraft.jsch.TestIdentityRepositoryFactory;
 
 /**
  * Tests cases for the SFTP provider.
