@@ -16,10 +16,7 @@
  */
 package org.apache.commons.vfs2.provider.ram.test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -29,11 +26,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
+import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.commons.vfs2.provider.ram.RamFileProvider;
 import org.apache.commons.vfs2.provider.ram.RamFileSystemConfigBuilder;
 import org.junit.After;
@@ -90,6 +90,8 @@ public class CustomRamProviderTest
 
         return this.closeOnTearDown(content.getInputStream());
     }
+
+
 
     @Before
     public void setUp() throws Exception
@@ -269,4 +271,42 @@ public class CustomRamProviderTest
         }
 
     }
+
+    /**
+     * Test some special file name symbols which do not work on LocalFiles but still
+     * should be supported on versatile providers like RAM.
+     *
+     * @throws FileSystemException
+     */
+    @Test
+    public void testSpecial() throws FileSystemException
+    {
+        // this must match the default encoding list, otherwise getChild() below fails
+        final char[] ENC = { /*2.2:'#',*/ '!', '?'};
+
+        // set up a folder containing an filename with special characters:
+        final String testFileName = "test:+-_ \"()<>%#.txt"; // specifically use a known scheme
+        final FileObject dir = manager.resolveFile("ram:/listtest");
+        dir.createFolder();
+        // does not work with '!'
+        final FileObject specialFile = dir.resolveFile("./" + UriParser.encode(testFileName, ENC));
+        specialFile.createFile();
+        System.out.println("Created " + specialFile);
+
+        // verify you can list it:
+
+        final FileObject[] childs = dir.findFiles(new AllFileSelector());
+System.out.println("Results: " + Arrays.toString(childs) + " " + childs[0].getName().getBaseName());
+        assertEquals(2, childs.length);
+        final String resultName = childs[0].getName().getPathDecoded();
+        assertEquals("/listtest/" + testFileName, resultName);
+
+        // verify you can directly get it:
+
+        // currently it string - compares against encoded basename
+        final FileObject directChild = dir.getChild(UriParser.encode(testFileName, ENC));
+        assertNotNull("Did not find direct child", directChild);
+        assertEquals(FileType.FILE, directChild.getType());
+    }
+
 }

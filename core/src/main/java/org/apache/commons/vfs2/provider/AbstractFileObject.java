@@ -1212,7 +1212,8 @@ public abstract class AbstractFileObject<AFS extends AbstractFileSystem> impleme
                 for (int i = 0; i < files.length; i++)
                 {
                     final String file = files[i];
-                    cache[i] = fs.getFileSystemManager().resolveName(fileName, file, NameScope.CHILD);
+                    // prepending ./ will avoid being recognized as URL scheme if name contains ':' SEEBURGER Bug#88769
+                    cache[i] = fs.getFileSystemManager().resolveName(fileName, "./" + file, NameScope.CHILD);
                 }
                 // VFS-285: only assign the children filenames after all of them have been
                 // resolved successfully to prevent an inconsistent internal state
